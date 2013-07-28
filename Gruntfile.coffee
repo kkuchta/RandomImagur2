@@ -9,8 +9,8 @@ module.exports = (grunt) ->
           'out/index.html' : 'src/index.haml'
     watch:
       scripts:
-        files: 'src/*.haml'
-        tasks: 'haml'
+        files: 'src/*'
+        tasks: 'default'
         options:
           livereload: true
     copy:
@@ -19,11 +19,19 @@ module.exports = (grunt) ->
         cwd: 'src'
         src: ['**/*.js','**/*.css'],
         dest: 'out/'
+    coffee:
+      files:
+        expand: true,
+        cwd: 'src'
+        src: ['**/*.coffee'],
+        ext: '.js'
+        dest: 'out/'
   )
 
   grunt.loadNpmTasks( 'grunt-contrib-watch' )
   grunt.loadNpmTasks( 'grunt-contrib-copy' )
   grunt.loadNpmTasks( 'grunt-haml' )
+  grunt.loadNpmTasks( 'grunt-contrib-coffee' );
 
   # Default task(s).
-  grunt.registerTask 'default', ['haml','copy']
+  grunt.registerTask 'default', ['haml','copy','coffee']
