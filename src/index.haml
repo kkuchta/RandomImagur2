@@ -1,0 +1,26 @@
+!!! 5
+%html
+  %head
+    %link{ href:'bootstrap/css/bootstrap.css', rel:'stylesheet' }
+    %link{ href:'style.css', rel:'stylesheet' }
+    %script{ src:"http://localhost:35729/livereload.js" }
+    %title
+      4Random Imgur
+
+  %body
+    %form.form-inline.well#controls
+      %label.checkbox
+        %input.kittens{ type: 'checkbox' } Kitten mode
+      %a.help-block{ href:'/' } Reload to take effect
+
+    #image-container
+      #images{ style: 'left:150px' }
+      #bottomOfImages
+        Loading more images...
+
+    %script{ type: 'text/javascript', src: 'https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js' }
+    %script{ type: 'text/javascript', src: 'jquery.masonry.min.js' }
+    %script{ type: 'text/javascript', src: 'waypoints.min.js' }
+    %script{ type: 'text/javascript', src: 'utils.js' }
+    %script{ type: 'text/javascript', src: 'imgurImage.js' }
+    %script{ type: 'text/javascript', src: 'script.js' }
