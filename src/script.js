@@ -1,5 +1,6 @@
 // Width of the columns of images, which will be resized to be a multiple of this
 var COLUMN_WIDTH = 150;
+window.RIW = {}
 
 $( function(){
     return
