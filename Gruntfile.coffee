@@ -20,10 +20,12 @@ module.exports = (grunt) ->
         src: ['**/*.js','**/*.css'],
         dest: 'out/'
     coffee:
+      options:
+        sourceMap: true
       files:
-        expand: true,
+        expand: true
         cwd: 'src'
-        src: ['**/*.coffee'],
+        src: ['**/*.coffee']
         ext: '.js'
         dest: 'out/'
   )

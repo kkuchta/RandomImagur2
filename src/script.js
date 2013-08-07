@@ -2,6 +2,7 @@
 var COLUMN_WIDTH = 150;
 window.RIW = {}
 
+
 $( function(){
     return
     $(document).on('mouseenter', '.imgurImage', null, hoverHandler); 
@@ -96,17 +97,7 @@ function setImageSize($img){
     var height = $img.css('max-height',1000);
 }
 
-/**
- * Snap width a grid line width (always rounding down)
- */
-function fixWidth( width, gridWidth, maxGridLines ){
-    for( var i=1; i < maxGridLines; i++ ){
-        if( width > i * gridWidth && width <= (i+1) * gridWidth ){
-            return (i) * gridWidth;
-        }
-    }
-    return maxGridLines * gridWidth;
-}
+
 
 var controls = (function(){
     var $container = $('#controls');

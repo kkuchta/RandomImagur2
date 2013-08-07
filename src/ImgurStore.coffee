@@ -1,6 +1,6 @@
 
-class ImgurStore
-  constructor: (@imageBufferSize = 3, @minWidth = 150)->
+class window.ImgurStore
+  constructor: (@imageBufferSize = 15, @minWidth = 150)->
     @imageList = []
     @fillCounter = 0
     @autoFillInterval = 1000
@@ -15,29 +15,22 @@ class ImgurStore
       # If the buffer was empty, decrease the buffer refill time
       if @imageList.length == 0 && @autoFillInterval > 10
         @autoFillInterval /= 2
-        console.log "Setting autoFillInterval to " + @autoFillInterval
 
       # If the buffer was full, increase the buffer refill time (slowely)
       else if @imageList.length == @imageBufferSize && @autoFillInterval < 5000
         @autoFillInterval *= 1.2
-        console.log "Setting autoFillInterval to " + @autoFillInterval
 
     @imageList.pop()
 
   _autoFill: =>
-    console.log( '---- Autofilling; counter = ' + @fillCounter )
     if @fillCounter == 0
-      console.log "Will autofill"
       @_fillList()
-    else
-      console.log "Can't autofill, alread filling"
 
   _fillList: ->
     i = @imageList.length
     while i < @imageBufferSize
       @fillCounter++
       i++
-      console.log( "Starting search (i=" + i + ")" )
       @_fetchImage()
 
    _makeid: ->
@@ -53,18 +46,15 @@ class ImgurStore
     recurseUntilSuccess = =>
       @_tryToGetImage().then (
         ($img) =>
-          console.log( "Succeeded" )
           @imageList.unshift $img
           @fillCounter--
       ), (
         ->
-          console.log( "Failed" )
           recurseUntilSuccess()
       )
     recurseUntilSuccess()
 
   _tryToGetImage: (success, failure)->
-    #console.log 'try to load'
     url = 'http://i.imgur.com/' + @_makeid() + '.jpg'
     $img = $ "<img class='imgurImage' src='" + url + "'>"
     $deferred = $.Deferred()
@@ -82,14 +72,10 @@ class ImgurStore
         $deferred.reject()
         $img.remove()
       else
-        $img.remove()
-        $img.css('position','relative')
-        $img.css('left','0')
-        $img.css('top','0')
-        $img.detach()
+        #$img.remove()
+        #$img.css('position','relative')
+        #$img.css('left','0')
+        #$img.css('top','0')
+        #$img.detach()
         $deferred.resolve($img)
     $deferred
-
-# For testing right now
-window.store = new ImgurStore()
-
