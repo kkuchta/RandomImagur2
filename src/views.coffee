@@ -20,8 +20,6 @@ $ ->
       @$el.masonry
         itemSelector: '.image'
         columnWidth : COLUMN_WIDTH
-      
-      #@$el.append @template()
       @
 
     onNewImage: (newImage) =>
@@ -30,6 +28,7 @@ $ ->
       @$el.append( newView.el )
       @$el.masonry( 'appended', newView.el )
     onScroll: =>
+      return
       if !@loading && $(window).scrollTop() >= $(document).height() - $(window).height() - 200
         console.log "Loading now..." + @batchSize
         @loading = true
@@ -51,13 +50,61 @@ $ ->
     className: 'image'
     MAX_COLUMNS: 3
 
+    events:
+      'click .original-img': 'showLarge'
+      'click .clone-img': 'hideLarge'
+
     initialize: ->
       @$img = @model.get('$img')
+      @$img.addClass('original-img')
 
     render: ->
       @$el.append @$img
-      @$img.width( @_idealWidth( @model.get('naturalWidth') ) )
+      @$img.width @_idealWidth( @model.get('naturalWidth') )
+      @$img.append @getClone()
       @
+
+    getClone: =>
+      unless @$clone
+        @$clone = $ '<img>'
+        @$clone.attr 'src', @$img.attr('src')
+        @$clone.load( => @positionClone() )
+      @$clone
+
+    positionClone: ->
+
+        position = @$img.position()
+        @$clone.css('position', 'absolute')
+        @$clone.css('left', position.left)
+        @$clone.css('top', position.top)
+        @$clone.css('max-height', 900)
+        @$clone.css('max-width', 900)
+        @$clone.css('z-index', 1)
+        @$clone.removeClass('original-img')
+        @$clone.addClass('clone-img')
+
+        originalRect = @$img[0].getBoundingClientRect()
+
+        cloneWidth = Math.min(@$clone.prop('width'), 900)
+        originalWidth = @$img.prop('width')
+        pageWidth = $(document).width()
+
+        if originalRect.left + cloneWidth > pageWidth
+          console.log( 'expand left' )
+          newLeft = (cloneWidth - originalWidth) * -1
+          @$clone.css('left', newLeft)
+
+    
+    showLarge: ->
+      console.log( 'onclick' )
+      clone = @getClone()
+      @$el.append(@$clone)
+      clone.show()
+    hideLarge: ->
+      console.log( '2onclick' )
+      @getClone().hide()
+
+
 
     # Snap width a grid line width (always rounding down)
     _idealWidth: ( naturalWidth, maxGridLines ) ->

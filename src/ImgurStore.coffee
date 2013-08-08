@@ -4,6 +4,7 @@ class window.ImgurStore
     @imageList = []
     @fillCounter = 0
     @autoFillInterval = 1000
+    @kittenMode= true 
 
   enableAutoFill: ->
     @autoFillIntervalID = setInterval( @_autoFill, @autoFillInterval )
@@ -77,5 +78,21 @@ class window.ImgurStore
         #$img.css('left','0')
         #$img.css('top','0')
         #$img.detach()
-        $deferred.resolve($img)
+        if( @kittenMode )
+          @_makeKitten($img)
+          $img.load =>
+            $deferred.resolve($img)
+        else
+            $deferred.resolve($img)
     $deferred
+
+  _makeKitten: ($img) ->
+    width = $img.width()
+    height = $img.height()
+    while width >= 2000 || height >= 2000
+        width = Math.floor width/2
+        height = Math.floor height/2
+
+    kittenURL = "http://placekitten.com/#{width}/#{height}"
+    $img.attr 'src', kittenURL
+

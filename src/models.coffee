@@ -1,13 +1,17 @@
 $ ->
   RIW.Image = Backbone.Model.extend
     initialize: ( options ) ->
-      $img = options.$img
-      this.set('naturalWidth', $img.width())
-      $img.remove()
-      $img.detach()
-      $img.css('position','relative')
-      $img.css('left','0')
-      $img.css('top','0')
+      @$img = options.$img
+      this.set 'naturalWidth', @$img.width()
+      this.set 'naturalHeight', @$img.height()
+      @$img.remove()
+      @$img.detach()
+      @$img.css 'position','relative'
+      @$img.css 'left','0'
+      @$img.css 'top','0'
+
+    clone: ->
+
 
   RIW.ImageCollection = Backbone.Collection.extend
     model: RIW.Image
