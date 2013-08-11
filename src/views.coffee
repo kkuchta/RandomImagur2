@@ -12,6 +12,7 @@ $ ->
 
     initialize: (options) =>
       @collection = new RIW.ImageCollection
+      @controlBox = new RIW.ControllBox
       @listenTo( @collection, 'add', @onNewImage )
       $(window).scroll(@onScroll);
       @render()
@@ -28,7 +29,6 @@ $ ->
       @$el.append( newView.el )
       @$el.masonry( 'appended', newView.el )
     onScroll: =>
-      return
       if !@loading && $(window).scrollTop() >= $(document).height() - $(window).height() - 200
         console.log "Loading now..." + @batchSize
         @loading = true
@@ -55,53 +55,59 @@ $ ->
       'click .clone-img': 'hideLarge'
 
     initialize: ->
+      @id = window.imgCount++
       @$img = @model.get('$img')
       @$img.addClass('original-img')
 
     render: ->
       @$el.append @$img
       @$img.width @_idealWidth( @model.get('naturalWidth') )
-      @$img.append @getClone()
       @
 
     getClone: =>
       unless @$clone
         @$clone = $ '<img>'
         @$clone.attr 'src', @$img.attr('src')
+        @$clone.addClass('clone-img')
         @$clone.load( => @positionClone() )
       @$clone
 
     positionClone: ->
 
-        position = @$img.position()
-        @$clone.css('position', 'absolute')
-        @$clone.css('left', position.left)
-        @$clone.css('top', position.top)
-        @$clone.css('max-height', 900)
-        @$clone.css('max-width', 900)
-        @$clone.css('z-index', 1)
-        @$clone.removeClass('original-img')
-        @$clone.addClass('clone-img')
+      # The layout engine messes with heights, so lets put it back
+      @$clone.css('max-height', 900)
+      @$clone.css('max-width', 900)
 
-        originalRect = @$img[0].getBoundingClientRect()
+      originalRect = @$img[0].getBoundingClientRect()
+      cloneWidth = @$clone.prop('width')
+      originalWidth = @$img.prop('width')
 
-        cloneWidth = Math.min(@$clone.prop('width'), 900)
-        originalWidth = @$img.prop('width')
-        pageWidth = $(document).width()
+      # Temporarily shrink so we can measure the document width
+      @$clone.css('max-height', 1)
+      @$clone.css('max-width', 1)
+      
+      pageWidth = $(document).width()
 
-        if originalRect.left + cloneWidth > pageWidth
-          console.log( 'expand left' )
-          newLeft = (cloneWidth - originalWidth) * -1
-          @$clone.css('left', newLeft)
+      @$clone.css('position', 'absolute')
+      @$clone.css('left', 0)
+      @$clone.css('top', 0)
+      @$clone.css('max-height', 900)
+      @$clone.css('max-width', 900)
+      @$clone.css('z-index', 1)
+
+      if originalRect.left + cloneWidth > pageWidth
+        console.log( 'expand left' )
+        newLeft = (cloneWidth - originalWidth) * -1
+        @$clone.css('left', newLeft)
 
     
     showLarge: ->
-      console.log( 'onclick' )
+      console.log( 'showLarge' )
       clone = @getClone()
       @$el.append(@$clone)
       clone.show()
     hideLarge: ->
-      console.log( '2onclick' )
+      console.log( 'hideLarge' )
       @getClone().hide()
 
 
@@ -116,3 +122,7 @@ $ ->
   window.RIW.App = new RIW.Wall
   for i in [0..10]
     window.RIW.App.collection.fetch()
+
+class RIW.ControllBox extends Backbone.View
+
+window.imgCount = 0
