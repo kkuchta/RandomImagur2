@@ -11,43 +11,45 @@ $ ->
     batchSize: 5
 
     initialize: (options) =>
-      @collection = new RIW.ImageCollection
-      @controlBox = new RIW.ControllBox
+      store = new ImgurStore
+      @collection = new RIW.ImageCollection([],store:store)
+      @controlBox = new RIW.ControlBox( collection: @collection, store: store )
       @listenTo( @collection, 'add', @onNewImage )
       $(window).scroll(@onScroll);
-      @render()
 
     render: =>
       @$el.masonry
-        itemSelector: '.image'
+        itemSelector: '.masonry'
         columnWidth : COLUMN_WIDTH
+      controlBoxEl = @controlBox.render().el
+      @$el.append controlBoxEl
+      @$el.masonry 'appended', controlBoxEl
       @
+
 
     onNewImage: (newImage) =>
       newView = new RIW.ImageView( {model:newImage} ).render()
 
       @$el.append( newView.el )
       @$el.masonry( 'appended', newView.el )
+
     onScroll: =>
       if !@loading && $(window).scrollTop() >= $(document).height() - $(window).height() - 200
-        console.log "Loading now..." + @batchSize
         @loading = true
         finishLoading = _.after( @batchSize,
           ( (rndID) =>
-            console.log "After called"
             @loading = false
           )
         )
         for j in [0..@batchSize-1]
           window.RIW.App.collection.fetch(
             (rndID) =>
-              console.log ("Finishd #{rndID}")
               finishLoading()
           )
   
   class RIW.ImageView extends Backbone.View
     template: _.template($('#image-view-template').html())
-    className: 'image'
+    className: 'image masonry'
     MAX_COLUMNS: 3
 
     events:
@@ -55,7 +57,6 @@ $ ->
       'click .clone-img': 'hideLarge'
 
     initialize: ->
-      @id = window.imgCount++
       @$img = @model.get('$img')
       @$img.addClass('original-img')
 
@@ -96,18 +97,15 @@ $ ->
       @$clone.css('z-index', 1)
 
       if originalRect.left + cloneWidth > pageWidth
-        console.log( 'expand left' )
         newLeft = (cloneWidth - originalWidth) * -1
         @$clone.css('left', newLeft)
 
     
     showLarge: ->
-      console.log( 'showLarge' )
       clone = @getClone()
       @$el.append(@$clone)
       clone.show()
     hideLarge: ->
-      console.log( 'hideLarge' )
       @getClone().hide()
 
 
@@ -119,10 +117,32 @@ $ ->
           return (i) * COLUMN_WIDTH
       return @MAX_COLUMNS * COLUMN_WIDTH
 
+  class RIW.ControlBox extends Backbone.View
+    template: _.template($('#controlbox-view-template').html())
+    className: 'controlBox masonry'
+
+    initialize: (options) ->
+      @store = options.store
+      @collection = options.collection
+
+      @listenTo( @collection, 'add', @imageAdded )
+    render: ->
+      @$el.append( @template({}) )
+      @$el.width( COLUMN_WIDTH * 4 )
+      @
+
+    imageAdded: () ->
+      total = @store.totalCounter
+      existant = total - @store.nonExistantCounter
+      percent = existant/total
+      percent = Math.round(percent * 1000) / 10
+      console.log( 'added' )
+      @$('.totalCounter').text(total)
+      @$('.existantCounter').text(existant)
+      @$('.percent').text(percent)
+
   window.RIW.App = new RIW.Wall
+  window.RIW.App.render()
   for i in [0..10]
     window.RIW.App.collection.fetch()
 
-class RIW.ControllBox extends Backbone.View
-
-window.imgCount = 0

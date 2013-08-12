@@ -15,8 +15,8 @@ $ ->
 
   RIW.ImageCollection = Backbone.Collection.extend
     model: RIW.Image
-    initialize: ->
-      @store = new ImgurStore
+    initialize: (arr, options) ->
+      @store = options.store
       @store.enableAutoFill()
       @toFetch = 0
     parse: ($img) ->
@@ -27,9 +27,8 @@ $ ->
     fetch: (success) ->
 
       rndID = Math.random()
-      console.log "fetching #{rndID}"
       @toFetch++
-      fetchWaitTime = 50
+      fetchWaitTime = 100
       totalWaitTime = 0
 
       processImage = (newImage) =>

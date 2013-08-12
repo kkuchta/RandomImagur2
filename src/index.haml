@@ -13,6 +13,16 @@
     %script{ type: 'text/template', id:"image-view-template" }
       Image content here
 
+    %script{ type: 'text/template', id:"controlbox-view-template" }
+      This page has loaded 
+      %span.totalCounter 0
+       random imgur urls, 
+      %span.existantCounter 0
+       of which were actual images.  
+      Based on this sample, imgur's 5-char keyspace is 
+      %span.percent 0
+      \% full.
+
 
   %body
 

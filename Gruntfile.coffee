@@ -28,12 +28,22 @@ module.exports = (grunt) ->
         src: ['**/*.coffee']
         ext: '.js'
         dest: 'out/'
+
+    sass:
+      files:
+        expand: true,
+        cwd: 'src'
+        src: ['*.sass']
+        ext: '.css'
+        dest: 'out/'
+
   )
 
   grunt.loadNpmTasks( 'grunt-contrib-watch' )
   grunt.loadNpmTasks( 'grunt-contrib-copy' )
   grunt.loadNpmTasks( 'grunt-haml' )
-  grunt.loadNpmTasks( 'grunt-contrib-coffee' );
+  grunt.loadNpmTasks( 'grunt-contrib-coffee' )
+  grunt.loadNpmTasks( 'grunt-contrib-sass' )
 
   # Default task(s).
-  grunt.registerTask 'default', ['haml','copy','coffee']
+  grunt.registerTask 'default', ['haml','copy','coffee', 'sass']

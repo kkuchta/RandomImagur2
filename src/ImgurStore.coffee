@@ -3,8 +3,10 @@ class window.ImgurStore
   constructor: (@imageBufferSize = 15, @minWidth = 150)->
     @imageList = []
     @fillCounter = 0
-    @autoFillInterval = 1000
-    @kittenMode= true 
+    @autoFillInterval = 50
+    @kittenMode = true 
+    @nonExistantCounter = 0
+    @totalCounter = 0
 
   enableAutoFill: ->
     @autoFillIntervalID = setInterval( @_autoFill, @autoFillInterval )
@@ -12,15 +14,6 @@ class window.ImgurStore
     clearInterval @autoFillIntervalID
 
   getImage: ->
-    if @autoFillIntervalID
-      # If the buffer was empty, decrease the buffer refill time
-      if @imageList.length == 0 && @autoFillInterval > 10
-        @autoFillInterval /= 2
-
-      # If the buffer was full, increase the buffer refill time (slowely)
-      else if @imageList.length == @imageBufferSize && @autoFillInterval < 5000
-        @autoFillInterval *= 1.2
-
     @imageList.pop()
 
   _autoFill: =>
@@ -67,17 +60,17 @@ class window.ImgurStore
     $img.css('opacity','-10000px')
     $('body').append($img)
     $img.load (e) =>
+      @totalCounter++
       if( ($img.width() == 161 && $img.height() == 81) || # kill non-existant images
           ($img.width() < @minWidth ) || # kill images smaller than 1 column
           ($img.width() < 25 || $img.height() < 25 ) )# kill super thin/tall images
+
+        if $img.width() == 161 && $img.height() == 81
+          @nonExistantCounter++
+
         $deferred.reject()
         $img.remove()
       else
-        #$img.remove()
-        #$img.css('position','relative')
-        #$img.css('left','0')
-        #$img.css('top','0')
-        #$img.detach()
         if( @kittenMode )
           @_makeKitten($img)
           $img.load =>
