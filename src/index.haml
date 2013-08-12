@@ -7,12 +7,6 @@
     %title
       Random Imgur
 
-    %script{ type: 'text/template', id:"wall-template" }
-      Wall content here
-
-    %script{ type: 'text/template', id:"image-view-template" }
-      Image content here
-
     %script{ type: 'text/template', id:"controlbox-view-template" }
       %p
         This page has loaded 
@@ -34,25 +28,13 @@
 
   %body
 
-    -#%form.form-inline.well#controls
-      -#%label.checkbox
-        -#%input.kittens{ type: 'checkbox' } Kitten mode
-      -#%a.help-block{ href:'/' } Reload to take effect
-
     #image-container
-      -##images{ style: 'left:150px' }
-      -##bottomOfImages
-        -#Loading more images...
 
     %script{ type: 'text/javascript', src: 'https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js' }
     %script{ type: 'text/javascript', src: 'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js' }
     %script{ type: 'text/javascript', src: 'json2.js' }
     %script{ type: 'text/javascript', src: 'backbone.js' }
     %script{ type: 'text/javascript', src: 'masonry.pkgd.min.js' }
-    %script{ type: 'text/javascript', src: 'waypoints.min.js' }
-    %script{ type: 'text/javascript', src: 'utils.js' }
-    %script{ type: 'text/javascript', src: 'imgurImage.js' }
     %script{ type: 'text/javascript', src: 'ImgurStore.js' }
-    %script{ type: 'text/javascript', src: 'script.js' }
     %script{ type: 'text/javascript', src: 'models.js' }
     %script{ type: 'text/javascript', src: 'views.js' }

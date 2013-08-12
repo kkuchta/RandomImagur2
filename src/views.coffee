@@ -1,21 +1,22 @@
-#window.Backbone.sync = (method,model,options) ->
-  #console.log( "Backbone sync" )
-  #if method == 'create' || method == 'update' || method == 'delete'
-    #throw "Stahp- shouldn't do anything besides read"
-  
-  #options.success([{name:'image'}])
 $ ->
+
+  # Main application view
   class RIW.Wall extends Backbone.View
+
     el: $('#image-container')
-    template: _.template($('#wall-template').html())
+
+    # How many images to load when we get near the bottom
     batchSize: 5
 
+    # How many pixels from the bottom to start autoloading
+    autoLoadThreshold: 400
+
     initialize: (options) =>
-      store = new ImgurStore( options.kittenMode )
+      store = new ImgurStore( 30, 150, options.kittenMode )
       @collection = new RIW.ImageCollection([],store:store)
       @controlBox = new RIW.ControlBox( collection: @collection, store: store )
       @listenTo( @collection, 'add', @onNewImage )
-      $(window).scroll(@onScroll);
+      $(window).scroll(@onScroll)
 
     render: =>
       @$el.masonry
@@ -26,7 +27,6 @@ $ ->
       @$el.masonry 'appended', controlBoxEl
       @
 
-
     onNewImage: (newImage) =>
       newView = new RIW.ImageView( {model:newImage} ).render()
 
@@ -34,21 +34,15 @@ $ ->
       @$el.masonry( 'appended', newView.el )
 
     onScroll: =>
-      if !@loading && $(window).scrollTop() >= $(document).height() - $(window).height() - 200
+      if !@loading && $(window).scrollTop() >= $(document).height() - $(window).height() - @autoLoadThreshold
         @loading = true
-        finishLoading = _.after( @batchSize,
-          ( (rndID) =>
-            @loading = false
-          )
-        )
+
+        finishLoading = _.after @batchSize, (rndID) => @loading = false
+
         for j in [0..@batchSize-1]
-          window.RIW.App.collection.fetch(
-            (rndID) =>
-              finishLoading()
-          )
+          window.RIW.App.collection.fetch (rndID) => finishLoading()
   
   class RIW.ImageView extends Backbone.View
-    template: _.template($('#image-view-template').html())
     className: 'image masonry'
     MAX_COLUMNS: 3
 
@@ -62,7 +56,7 @@ $ ->
 
     render: ->
       @$el.append @$img
-      @$img.width @_idealWidth( @model.get('naturalWidth') )
+      @$img.width @_idealWidth @model.get('naturalWidth')
       @
 
     getClone: =>
@@ -70,9 +64,11 @@ $ ->
         @$clone = $ '<img>'
         @$clone.attr 'src', @$img.attr('src')
         @$clone.addClass('clone-img')
-        @$clone.load( => @positionClone() )
+        @$clone.load => @positionClone()
       @$clone
 
+    # If we have space, expand the image to the right of the preview.  Otherwise,
+    # expand it to the left.
     positionClone: ->
 
       # The layout engine messes with heights, so lets put it back
@@ -100,59 +96,57 @@ $ ->
         newLeft = (cloneWidth - originalWidth) * -1
         @$clone.css('left', newLeft)
 
-    
     showLarge: ->
       clone = @getClone()
-      @$el.append(@$clone)
+      @$el.append @$clone
       clone.show()
+
     hideLarge: ->
       @getClone().hide()
 
-
-
-    # Snap width a grid line width (always rounding down)
+    # Snap width to a grid line width (always rounding down)
     _idealWidth: ( naturalWidth, maxGridLines ) ->
       for i in [0..@MAX_COLUMNS]
-        if( naturalWidth > i * COLUMN_WIDTH && naturalWidth <= (i+1) * COLUMN_WIDTH )
+        if naturalWidth > i * COLUMN_WIDTH && naturalWidth <= (i+1) * COLUMN_WIDTH
           return (i) * COLUMN_WIDTH
       return @MAX_COLUMNS * COLUMN_WIDTH
 
   class RIW.ControlBox extends Backbone.View
-    template: _.template($('#controlbox-view-template').html())
+    template: _.template $('#controlbox-view-template').html()
     className: 'controlBox masonry'
 
     events:
       'click .kittenModeToggle': 'toggleKittenMode'
 
     initialize: (options) ->
-      console.log( 'init control box' )
       @store = options.store
       @collection = options.collection
 
-      @listenTo( @collection, 'add', @imageAdded )
+      @listenTo @collection, 'add', @imageAdded
     render: ->
-      @$el.append( @template({}) )
-      @$el.width( COLUMN_WIDTH * 4 )
+      @$el.append @template {}
+      @$el.width COLUMN_WIDTH * 4
       @
 
-    @toggleKittenMode: (e) =>
-      console.log "toggle kitten mode"
-      localStorage['kittenMode'] = !@store.kittenMode
+    toggleKittenMode: (e) =>
+      localStorage.setItem 'kittenMode', !@store.kittenMode
       e.preventDefault()
+      location.reload()
 
     imageAdded: () ->
       total = @store.totalCounter
       existant = total - @store.nonExistantCounter
       percent = existant/total
       percent = Math.round(percent * 1000) / 10
-      console.log( 'added' )
-      @$('.totalCounter').text(total)
-      @$('.existantCounter').text(existant)
-      @$('.percent').text(percent)
+      @$('.totalCounter').text total
+      @$('.existantCounter').text existant
+      @$('.percent').text percent
 
-  kittenMode = localStorage['kittenMode']
-  window.RIW.App = new RIW.Wall {kittenMode: kittenMode}
+  kittenMode = localStorage.getItem('kittenMode') == 'true'
+  window.RIW.App = new RIW.Wall kittenMode: kittenMode
   window.RIW.App.render()
   for i in [0..10]
     window.RIW.App.collection.fetch()
 
+window.RIW = {}
+window.COLUMN_WIDTH = 150

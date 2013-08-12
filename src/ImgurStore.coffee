@@ -1,5 +1,7 @@
 
+# A pile of valid imgur images.  Will auto-fill itself over time.
 class window.ImgurStore
+
   constructor: (@imageBufferSize = 30, @minWidth = 150, @kittenMode = false)->
     @imageList = []
     @fillCounter = 0
@@ -8,10 +10,12 @@ class window.ImgurStore
     @totalCounter = 0
 
   enableAutoFill: ->
-    @autoFillIntervalID = setInterval( @_autoFill, @autoFillInterval )
+    @autoFillIntervalID = setInterval @_autoFill, @autoFillInterval
+
   disableAutoFill: ->
     clearInterval @autoFillIntervalID
 
+  # Get an image if we have any
   getImage: ->
     @imageList.pop()
 
@@ -58,6 +62,7 @@ class window.ImgurStore
     $img.css('top','-10000px')
     $img.css('opacity','-10000px')
     $('body').append($img)
+
     $img.load (e) =>
       @totalCounter++
       if( ($img.width() == 161 && $img.height() == 81) || # kill non-existant images
