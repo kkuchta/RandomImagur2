@@ -11,7 +11,7 @@ $ ->
     batchSize: 5
 
     initialize: (options) =>
-      store = new ImgurStore
+      store = new ImgurStore( options.kittenMode )
       @collection = new RIW.ImageCollection([],store:store)
       @controlBox = new RIW.ControlBox( collection: @collection, store: store )
       @listenTo( @collection, 'add', @onNewImage )
@@ -121,7 +121,11 @@ $ ->
     template: _.template($('#controlbox-view-template').html())
     className: 'controlBox masonry'
 
+    events:
+      'click .kittenModeToggle': 'toggleKittenMode'
+
     initialize: (options) ->
+      console.log( 'init control box' )
       @store = options.store
       @collection = options.collection
 
@@ -130,6 +134,11 @@ $ ->
       @$el.append( @template({}) )
       @$el.width( COLUMN_WIDTH * 4 )
       @
+
+    @toggleKittenMode: (e) =>
+      console.log "toggle kitten mode"
+      localStorage['kittenMode'] = !@store.kittenMode
+      e.preventDefault()
 
     imageAdded: () ->
       total = @store.totalCounter
@@ -141,7 +150,8 @@ $ ->
       @$('.existantCounter').text(existant)
       @$('.percent').text(percent)
 
-  window.RIW.App = new RIW.Wall
+  kittenMode = localStorage['kittenMode']
+  window.RIW.App = new RIW.Wall {kittenMode: kittenMode}
   window.RIW.App.render()
   for i in [0..10]
     window.RIW.App.collection.fetch()

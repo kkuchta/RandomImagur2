@@ -1,10 +1,9 @@
 
 class window.ImgurStore
-  constructor: (@imageBufferSize = 15, @minWidth = 150)->
+  constructor: (@imageBufferSize = 30, @minWidth = 150, @kittenMode = false)->
     @imageList = []
     @fillCounter = 0
     @autoFillInterval = 50
-    @kittenMode = true 
     @nonExistantCounter = 0
     @totalCounter = 0
 
