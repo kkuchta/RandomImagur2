@@ -12,7 +12,7 @@ $ ->
     autoLoadThreshold: 400
 
     initialize: (options) =>
-      store = new ImgurStore( 30, 150, options.kittenMode )
+      store = new ImgurStore( 1000, 150, options.kittenMode )
       @collection = new RIW.ImageCollection([],store:store)
       @controlBox = new RIW.ControlBox( collection: @collection, store: store )
       @listenTo( @collection, 'add', @onNewImage )
